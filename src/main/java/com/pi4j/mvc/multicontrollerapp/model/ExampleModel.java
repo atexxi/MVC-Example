@@ -1,5 +1,8 @@
 package com.pi4j.mvc.multicontrollerapp.model;
 
+import java.util.ArrayList;
+
+import com.pi4j.mvc.util.mvcbase.ObservableList;
 import com.pi4j.mvc.util.mvcbase.ObservableValue;
 
 /**
@@ -13,6 +16,8 @@ public class ExampleModel  {
     public final ObservableValue<String>  systemInfo      = new ObservableValue<>("JavaFX " + System.getProperty("javafx.version") + ", running on Java " + System.getProperty("java.version") + ".");
     public final ObservableValue<Integer> counter         = new ObservableValue<>(73);
     public final ObservableValue<Boolean> ledGlows        = new ObservableValue<>(false);
+    public final ObservableList<Byte> connectedPositions        = new ObservableList<>(new ArrayList<>());
+    public final ObservableList<String> errorMessages        = new ObservableList<>(new ArrayList<>());
 
     // if you want to use the LED's built-in blinking feature (instead of implementing blinking in Controller), you need an additional state
    // public final ObservableValue<Boolean> blinkingTrigger = new ObservableValue<>(false);
