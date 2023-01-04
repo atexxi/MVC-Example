@@ -17,6 +17,7 @@ open module com.pi4j.mvc {
     requires javafx.controls;
     requires atx.iot.ui;
     requires java.net.http;
+    requires atx.gateway.ws;
 
     // Module Exports
 

@@ -3,7 +3,7 @@ package fr.donrolando.mvc;
 import java.security.InvalidParameterException;
 
 import ch.atexxi.hw.atx.ui.i2cdebug.I2CDebuggerWebSocket;
-import com.pi4j.mvc.templateapp.model.SomeModel;
+import ch.atexxi.ipsc.gateway.ws.telegram.BuzzTelegram;
 import com.pi4j.mvc.util.mvcbase.ControllerBase;
 
 public class RBAController extends ControllerBase<RBAModel> {
@@ -52,4 +52,11 @@ public class RBAController extends ControllerBase<RBAModel> {
 			connect();
 		}
 	}
+	public void beep() {
+		if (model.connected.getValue()){
+			debugger.telegramSend(new BuzzTelegram());
+			model.messagesList.getValue().add("Buzz Sended");
+		}
+	}
+
 }

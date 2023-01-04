@@ -1,5 +1,8 @@
 package fr.donrolando.mvc;
 
+import java.util.ArrayList;
+
+import com.pi4j.mvc.util.mvcbase.ObservableList;
 import com.pi4j.mvc.util.mvcbase.ObservableValue;
 
 /**
@@ -14,7 +17,8 @@ public class RBAModel {
     public final ObservableValue<Integer> counter    = new ObservableValue<>(73);
     public final ObservableValue<Boolean> ledGlows   = new ObservableValue<>(false);
 
-    public final ObservableValue<Boolean> connected   = new ObservableValue<>(false);
-
     public final ObservableValue<String> ip = new ObservableValue<>("192.168.0.9");
+    public final ObservableValue<Boolean> connected   = new ObservableValue<>(false);
+    public final ObservableList<String> messagesList = new ObservableList<>(new ArrayList<>());
+
 }
