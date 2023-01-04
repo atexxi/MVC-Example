@@ -69,7 +69,7 @@ public interface ViewMixin<M, C extends ControllerBase<M>> extends Projector<M, 
 	/**
 	 * Starting point for registering an observer.
 	 *
-	 * @param observableValue
+	 * @param observableList
 	 * 		the value that needs to be observed
 	 *
 	 * @return a 'Converter' to specify a function converting the type of 'ObservableValue' into the type of the
