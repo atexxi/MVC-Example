@@ -17,8 +17,6 @@ public class RBAController extends ControllerBase<RBAModel> {
 	// the logic we need in our application
 	// these methods can be called from GUI and PUI (and from nowhere else)
 	public void connect(){
-		if (model.ip.getValue().equals(null))
-			throw new InvalidParameterException("ip must be set");
 		debugger.open(model.ip.getValue());
 		if (debugger.isConnected())
 			setValue(model.connected,true);
@@ -42,7 +40,9 @@ public class RBAController extends ControllerBase<RBAModel> {
 	}
 
 	public void setIp(String text) {
-		setValue(model.ip,text);
+
+		model.ip.setValue(text);  //Do it now !!!!!
+//		setValue(model.ip,text);
 	}
 
 	public void toggleConnect() {
@@ -55,8 +55,9 @@ public class RBAController extends ControllerBase<RBAModel> {
 	public void beep() {
 		if (model.connected.getValue()){
 			debugger.telegramSend(new BuzzTelegram());
-			model.messagesList.getValue().add("Buzz Sended");
-		}
+			model.messagesList.getValue().add("Buzz sent");
+		} else
+			model.messagesList.getValue().add("Unable to send Buzz telegram, because debugger is not connected!");
 	}
 
 }

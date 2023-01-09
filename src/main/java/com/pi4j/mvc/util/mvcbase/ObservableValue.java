@@ -40,7 +40,7 @@ public final class ObservableValue<V>  {
      *
      * @param newValue the new value
      */
-    void setValue(V newValue) {
+    public void setValue(V newValue) {
         if (Objects.equals(value, newValue)) {  // no notification if value hasn't changed
             return;
         }

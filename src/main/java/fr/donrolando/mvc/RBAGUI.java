@@ -1,13 +1,6 @@
 package fr.donrolando.mvc;
 
-import java.util.List;
-import java.util.function.Function;
-
-import com.pi4j.mvc.templateapp.controller.SomeController;
-import com.pi4j.mvc.templateapp.model.SomeModel;
-import com.pi4j.mvc.util.mvcbase.ObservableList;
 import com.pi4j.mvc.util.mvcbase.ViewMixin;
-import javafx.beans.property.Property;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -103,8 +96,17 @@ public class RBAGUI extends BorderPane
 			controller.setIp("test");
 		});
 		ledButton.setOnMouseReleased(event -> controller.setLedGlows(false));
-		ipTextfield.setOnAction(event -> controller.setIp(ipTextfield.getText()));
-		connectButton.setOnAction(event -> controller.toggleConnect());
+
+//		ipTextfield.setOnAction(event -> controller.setIp(ipTextfield.getText()));
+//		ipTextfield.textProperty().addListener((observable, oldValue, newValue) -> {
+//			//TODO Validate IP address
+//			controller.setIp(newValue);
+//		});
+
+		connectButton.setOnAction(event -> {
+			controller.setIp(ipTextfield.getText());
+			controller.toggleConnect();
+		});
 		beepButton.setOnAction(event -> controller.beep());
 	}
 
@@ -120,7 +122,12 @@ public class RBAGUI extends BorderPane
 		onChangeOf(model.ip).update(ipTextfield.textProperty());
 
 		Converter<Boolean> converterConnected = onChangeOf(model.connected);
-		converterConnected.convertedBy(aBoolean -> !aBoolean).update(beepButton.disableProperty());
+
+		converterConnected.update(ipTextfield.disableProperty());
+		Updater<Boolean, Boolean> updater = converterConnected.convertedBy(aBoolean -> !aBoolean);
+		updater.update(beepButton.disableProperty());
+
+
 		converterConnected.convertedBy(aBoolean -> {
 			if (aBoolean)
 				return "Disconnect";
@@ -128,7 +135,11 @@ public class RBAGUI extends BorderPane
 				return "Connect";
 		}).update(connectButton.textProperty());
 
-//		onChangeOf(model.messagesList).convertedBy(new Function<List<String>, List<? extends Object>>() {
+//		Converter<ObservableList<String>> converter =
+		ListConverter<String> stringListConverter = onChangeOf(model.messagesList);
+//		stringListConverter.update(messages.itemsProperty());
+
+		//		onChangeOf(model.messagesList).convertedBy(new Function<List<String>, List<? extends Object>>() {
 //			@Override
 //			public List<? extends Object> apply(List<String> strings) {
 //				return strings;
