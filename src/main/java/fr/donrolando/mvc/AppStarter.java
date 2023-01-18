@@ -1,10 +1,5 @@
 package fr.donrolando.mvc;
 
-import com.pi4j.mvc.templateapp.controller.SomeController;
-import com.pi4j.mvc.templateapp.model.SomeModel;
-import com.pi4j.mvc.templateapp.view.gui.SomeGUI;
-import com.pi4j.mvc.templateapp.view.pui.SomePUI;
-import com.pi4j.mvc.util.Pi4JContext;
 import javafx.application.Application;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -13,7 +8,7 @@ import javafx.stage.Stage;
 public class AppStarter extends Application {
 
     private RBAController controller;
-//    private SomePUI        pui;
+    private RBAPUI        pui;
 
     @Override
     public void start(Stage primaryStage) {
@@ -23,7 +18,7 @@ public class AppStarter extends Application {
         controller = new RBAController(model);
 
         //both gui and pui are working on the same controller
-//        pui = new SomePUI(controller, Pi4JContext.createContext());
+//        pui = new RBAPUI(controller);//, Pi4JContext.createContext());
 
         Parent gui = new RBAGUI(controller);
 
@@ -35,7 +30,7 @@ public class AppStarter extends Application {
         primaryStage.show();
 
         // on desktop it's convenient to have a very basic emulator for the PUI to test the interaction between GUI and PUI
-        // startPUIEmulator(new SomePuiEmulator(controller));
+//        startPUIEmulator(new RBAPuiEmulator(controller));
     }
 
     @Override

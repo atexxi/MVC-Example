@@ -1,12 +1,13 @@
 package fr.donrolando.mvc;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import com.pi4j.mvc.util.mvcbase.ViewMixin;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -27,6 +28,8 @@ public class RBAGUI extends BorderPane
 	private TextField ipTextfield;
 	private Button connectButton;
 	private Button beepButton;
+
+	private ComboBox<String> debuggerTypeCombo;
 
 	private ListView<Text> messages;
 
@@ -61,6 +64,41 @@ public class RBAGUI extends BorderPane
 		ipTextfield = new TextField();
 		ipTextfield.getStyleClass().add("info-label");
 
+		ipTextfield.addEventFilter(KeyEvent.KEY_TYPED, event -> {
+//			if (event.getCode().equals(KeyCode.KP_LEFT))
+//				System.out.println("KP_LEFT");
+//			if (event.getCode().equals(KeyCode.KP_RIGHT))
+//				System.out.println("KP_RIGHT");
+//
+//				if (event.getCode().equals(KeyCode.LEFT))
+//				System.out.println("LEFT");
+//			if (event.getCode().equals(KeyCode.RIGHT))
+//				System.out.println("RIGHT");
+
+			if (!"0123456789.".contains(event.getCharacter())) {
+				event.consume();
+			}
+		});
+
+		debuggerTypeCombo = new ComboBox<>();
+		debuggerTypeCombo.getItems().addAll("RBA","MCP2221","WebSocket");
+
+//		ipTextfield.setTextFormatter(new TextFormatter<String>(change -> {
+//			final int oldLength = change.getControlText().length();
+//			int newLength = change.getControlNewText().length();
+////			if (newLength<oldLength) return change;
+////			change.setCaretPosition(newLength);
+////			change.setAnchor(newLength);
+//			return change;
+//		}));
+
+//		SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
+//		try {
+//			ipTextfield.setTextFormatter(new TextFormatter<>(new DateTimeStringConverter(format),format.parse("00:00:00")));
+//		} catch (ParseException e) {
+//			throw new RuntimeException(e);
+//		}
+
 		connectButton = new Button("Connect");
 
 		beepButton = new Button("Beep");
@@ -75,7 +113,7 @@ public class RBAGUI extends BorderPane
 		HBox topBox = new HBox(ledButton);
 		topBox.setAlignment(Pos.CENTER);
 
-		VBox centerBox = new VBox(counterLabel, increaseButton, ipTextfield, connectButton, beepButton, messages);
+		VBox centerBox = new VBox(counterLabel, increaseButton, debuggerTypeCombo, ipTextfield, connectButton, beepButton, messages);
 		centerBox.setAlignment(Pos.CENTER);
 		centerBox.setFillWidth(true);
 		centerBox.setPadding(new Insets(30));
@@ -93,21 +131,33 @@ public class RBAGUI extends BorderPane
 		increaseButton.setOnAction(event -> controller.increaseCounter());
 		ledButton.setOnMousePressed(event -> {
 			controller.setLedGlows(true);
-			controller.setIp("test");
 		});
 		ledButton.setOnMouseReleased(event -> controller.setLedGlows(false));
 
-//		ipTextfield.setOnAction(event -> controller.setIp(ipTextfield.getText()));
-//		ipTextfield.textProperty().addListener((observable, oldValue, newValue) -> {
-//			//TODO Validate IP address
-//			controller.setIp(newValue);
-//		});
+		ipTextfield.textProperty().addListener((observable, oldValue, newValue) -> {
+			//TODO Validate IP address
+//			if (validateIP(newValue)) {
+//				System.out.println("Valid IP Address");
+				controller.setIp(newValue);
+//			}
+//			else
+//				System.err.println("Invalid IP Address");
+		});
 
 		connectButton.setOnAction(event -> {
-			controller.setIp(ipTextfield.getText());
 			controller.toggleConnect();
 		});
+
 		beepButton.setOnAction(event -> controller.beep());
+
+//		debuggerTypeCombo.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
+//			@Override
+//			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+//				controller.setDebuggerType((Integer) newValue);
+//			}
+//		});
+		debuggerTypeCombo.setOnAction(event -> controller.setDebuggerType(debuggerTypeCombo.getSelectionModel().getSelectedIndex()));
+
 	}
 
 	@Override
@@ -119,14 +169,18 @@ public class RBAGUI extends BorderPane
 				model.counter)                          // the value we need to observe, in this case that's an ObservableValue<Integer>
 				.convertedBy(String::valueOf)              // we have to convert the Integer to a String
 				.update(counterLabel.textProperty());      // keeps textProperty and counter in sync
-		onChangeOf(model.ip).update(ipTextfield.textProperty());
+//		onChangeOf(model.ip).update(ipTextfield.textProperty());
+
+		Converter<Integer> converterDebuggerType = onChangeOf(model.debuggerType);
+		Updater<Integer,Boolean> updaterType = converterDebuggerType.convertedBy(integer -> integer.equals(2));
+		updaterType.update(ipTextfield.visibleProperty());
+		updaterType.update(beepButton.visibleProperty());
 
 		Converter<Boolean> converterConnected = onChangeOf(model.connected);
-
 		converterConnected.update(ipTextfield.disableProperty());
+		converterConnected.update(debuggerTypeCombo.disableProperty());
 		Updater<Boolean, Boolean> updater = converterConnected.convertedBy(aBoolean -> !aBoolean);
 		updater.update(beepButton.disableProperty());
-
 
 		converterConnected.convertedBy(aBoolean -> {
 			if (aBoolean)
@@ -134,6 +188,10 @@ public class RBAGUI extends BorderPane
 			else
 				return "Connect";
 		}).update(connectButton.textProperty());
+
+		Converter<String> converterValidIP = onChangeOf(model.ip);
+		Updater<String,Boolean> updaterValidIP = converterValidIP.convertedBy(s -> !validateIP(s));
+		updaterValidIP.update(connectButton.disableProperty());
 
 //		Converter<ObservableList<String>> converter =
 		ListConverter<String> stringListConverter = onChangeOf(model.messagesList);
@@ -147,4 +205,18 @@ public class RBAGUI extends BorderPane
 //		})
 
 	}
+
+	public boolean validateIP(final String ip) {
+		Pattern pattern;
+		Matcher matcher;
+		String IPADDRESS_PATTERN
+				= "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
+				+ "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
+				+ "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\."
+				+ "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
+		pattern = Pattern.compile(IPADDRESS_PATTERN);
+		matcher = pattern.matcher(ip);
+		return matcher.matches();
+	}
+
 }
